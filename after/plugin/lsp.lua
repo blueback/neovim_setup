@@ -34,24 +34,71 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- You'll find a list of language servers here:
--- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
--- These are example language servers. 
-require('lspconfig').gleam.setup({})
-require('lspconfig').ocamllsp.setup({})
-require('lspconfig').clangd.setup({})
+------------------------------------------------------------------------------------
+------------------------------NEW way to select languages---------------------------
+------------------------------------------------------------------------------------
+require('mason').setup({})
+require('mason-lspconfig').setup({
+  handlers = {
+    function(server_name)
+      require('lspconfig')[server_name].setup({})
+    end,
+  },
+})
 
+------------------------------------------------------------------------------------
+------------------------OLD way to manually select languages------------------------
+------------------------------------------------------------------------------------
+--- -- You'll find a list of language servers here:
+--- -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+--- -- These are example language servers. 
+--- require('lspconfig').gleam.setup({})
+--- require('lspconfig').ocamllsp.setup({})
+--- require('lspconfig').clangd.setup({})
+
+
+------------------------------------------------------------------------------------
+----------------------Setup OLD autocomplete----------------------------------------
+------------------------------------------------------------------------------------
+-- local cmp = require('cmp')
+-- 
+-- cmp.setup({
+--   sources = {
+--     {name = 'nvim_lsp'},
+--   },
+--   mapping = cmp.mapping.preset.insert({}),
+--   snippet = {
+--     expand = function(args)
+--       -- You need Neovim v0.10 to use vim.snippet
+--       vim.snippet.expand(args.body)
+--     end,
+--   },
+-- })
+
+
+------------------------------------------------------------------------------------
+----------------------Setup NEW autocomplete----------------------------------------
+------------------------------------------------------------------------------------
 local cmp = require('cmp')
 
 cmp.setup({
   sources = {
     {name = 'nvim_lsp'},
   },
+  mapping = cmp.mapping.preset.insert({
+    -- `Enter` key to confirm completion
+    ['<CR>'] = cmp.mapping.confirm({select = false}),
+
+    -- Ctrl+Space to trigger completion menu
+    ['<C-Space>'] = cmp.mapping.complete(),
+
+    -- Scroll up and down in the completion documentation
+    ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-d>'] = cmp.mapping.scroll_docs(4),
+  }),
   snippet = {
     expand = function(args)
-      -- You need Neovim v0.10 to use vim.snippet
       vim.snippet.expand(args.body)
     end,
   },
-  mapping = cmp.mapping.preset.insert({}),
 })
