@@ -65,6 +65,11 @@ return {
     "tpope/vim-fugitive",
   },
 
+  {'VonHeikemen/lsp-zero.nvim', branch = 'v4.x'},
+  {'neovim/nvim-lspconfig'},
+  {'hrsh7th/cmp-nvim-lsp'},
+  {'hrsh7th/nvim-cmp'},
+
    -- I have a separate config.mappings file where I require which-key.
   -- With lazy the plugin will be automatically loaded when it is required somewhere
   -- { "folke/which-key.nvim", lazy = true },

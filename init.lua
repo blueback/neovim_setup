@@ -1,2 +1,2 @@
 require("kaushtuk")
-print("hello")
+--print("hello")
