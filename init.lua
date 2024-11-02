@@ -1,0 +1,2 @@
+require("kaushtuk")
+print("hello")
