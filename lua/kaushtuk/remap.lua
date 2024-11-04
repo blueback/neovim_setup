@@ -38,21 +38,56 @@ vim.keymap.set("n", "<leader>f", function()
     vim.lsp.buf.format({ async = false })
 end, { noremap = true, silent = true })
 
--- Set up key mapping for visual mode (formats selected lines)
-vim.keymap.set("v", "<leader>f", function()
-    -- Get the range of selected lines
-    local start_line = vim.fn.line("'<")
-    local end_line = vim.fn.line("'>")
+local send_escape_if_in_visual_mode = function()
+    if (vim.api.nvim_get_mode().mode == 'V') then
+        vim.api.nvim_input('<ESC>')
+    end
+end
 
-    -- Format only the selected range
-    vim.lsp.buf.format({
-        async = true,
-        range = {
-            start = { line = start_line - 1, character = 0 },
-            ["end"] = { line = end_line, character = 0 }
-        }
-    })
-end, { noremap = true, silent = true })
+local do_lsp_format_async = true
+if (do_lsp_format_async) then
+    -- Set up key mapping for visual mode (formats selected lines)
+    vim.keymap.set("v", "<leader>f", function()
+        -- Get the range of selected lines
+        local start_line = vim.fn.line("'<")
+        local end_line = vim.fn.line("'>")
+
+        -- Format only the selected range
+        vim.lsp.buf.format({
+            async = true,
+            range = {
+                start = { line = start_line - 1, character = 0 },
+                ["end"] = { line = end_line, character = 0 }
+            },
+
+        })
+
+        -- Exit visual mode and return to normal mode
+        send_escape_if_in_visual_mode()
+    end, { noremap = true, silent = true })
+else
+    -- Set up key mapping for visual mode (formats selected lines)
+    vim.keymap.set("v", "<leader>f", function()
+        -- Get the range of selected lines
+        local start_line = vim.fn.line("'<")
+        local end_line = vim.fn.line("'>")
+
+        -- Format only the selected range
+        vim.lsp.buf.format({
+            async = false,
+            range = {
+                start = { line = start_line - 1, character = 0 },
+                ["end"] = { line = end_line, character = 0 }
+            },
+
+        })
+
+        vim.schedule(function()
+            -- Exit visual mode and return to normal mode
+            send_escape_if_in_visual_mode()
+        end)
+    end, { noremap = true, silent = true })
+end
 
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
