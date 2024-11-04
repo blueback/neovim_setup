@@ -65,8 +65,24 @@ return {
     "tpope/vim-fugitive",
   },
 
+  --{
+  --  'jose-elias-alvarez/null-ls.nvim',
+  --  event = "VeryLazy",
+  --  opts = function()
+  --      return require "kaushtuk.null-ls"
+  --  end,
+  --},
+
   {'VonHeikemen/lsp-zero.nvim', branch = 'v4.x'},
-  {'williamboman/mason.nvim'},
+  {
+    "williamboman/mason.nvim",
+    opts = {
+        ensure_installed = {
+            "clangd",
+            "clang-format",
+        }
+    }
+  },
   {'williamboman/mason-lspconfig.nvim'},
   {'neovim/nvim-lspconfig'},
   {'hrsh7th/cmp-nvim-lsp'},
