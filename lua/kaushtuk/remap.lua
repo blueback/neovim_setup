@@ -97,3 +97,15 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+
+--vim.keymap.set("n", "<C-r>", "<C-r>")
+--vim.keymap.set("x", "<leader>r", "hy:%s/<CR>//gc<left><left><left>")
+vim.keymap.set("x", "<leader>r", "y:%s/<C-r>0//gc<Left><Left><left>")
+
+--------------------------------------
+--To see the current keymaps current
+--------------------------------------
+--:nmap
+--:vmap
+--:imap
+--
