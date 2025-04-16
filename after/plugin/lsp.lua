@@ -39,12 +39,35 @@ vim.api.nvim_create_autocmd('LspAttach', {
 ------------------------------------------------------------------------------------
 require('mason').setup({})
 require('mason-lspconfig').setup({
+  --- This can be used to ensure these lsp servers are installed
+  ---ensure_installed = { "verible" },
   handlers = {
     function(server_name)
       require('lspconfig')[server_name].setup({})
     end,
   },
 })
+------------------------------------------------------------------------------------
+-------------------------------- Formatting Options --------------------------------
+------------------------------------------------------------------------------------
+--- This can be used to pass formatting options to lsp servers
+local do_lsp_formatting_config = false
+if (do_lsp_formatting_config) then
+  require('mason-lspconfig').setup_handlers({
+    ["verible"] = function()
+      print("setting verible")
+      require("lspconfig").verible.setup({
+        settings = {
+          verilog = {
+            formatOptions = {
+              indentWidth = 4
+            }
+          }
+        }
+      })
+    end
+  })
+end
 
 ------------------------------------------------------------------------------------
 ------------------------OLD way to manually select languages------------------------
