@@ -1,4 +1,7 @@
+-- vi: foldmethod=marker
+
 -- Debug logging function
+-- {{{
 local disable_debugging = true;
 local function debug_log(msg, data)
   if disable_debugging then
@@ -23,8 +26,10 @@ local function debug_log(msg, data)
   end
   vim.api.nvim_buf_set_lines(debug_buf, -1, -1, false, replacement_strings)
 end
+-- }}}
 
 -- Function to visualize tree structure
+-- {{{
 local function tree_to_string(node, prefix)
   prefix = prefix or ""
   local result = prefix .. "Node(start=" .. node.start_line .. ", data=" .. tostring(node.data) .. ");"
@@ -33,8 +38,10 @@ local function tree_to_string(node, prefix)
   end
   return result
 end
+-- }}}
 
 -- Node structure for both trees
+-- {{{
 local function create_node(start_line)
   debug_log("Creating node at line", start_line)
   return {
@@ -45,45 +52,78 @@ local function create_node(start_line)
     data = nil
   }
 end
+-- }}}
 
 -- Function to build tree structure from buffer
+-- {{{
 local function build_tree(get_node_data)
   local stack = {}
   local root = create_node(0) -- Dummy root
   stack[0] = root
   local depth = 0
+  local open_marker = '{{{'
+  local close_marker = '}}}'
 
   debug_log("Starting tree build")
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   for i, line in ipairs(lines) do
-    if line:match('{{{') then
+    if line:match(open_marker) then
+      -- {{{
       depth = depth + 1
-      debug_log("Found marker {{{ at line", i)
+      debug_log("Found open marker at line", i)
       local node = create_node(i)
       node.data = get_node_data(i)
       debug_log("Node data", node.data)
       table.insert(stack[depth - 1].children, node)
       stack[depth] = node
-    elseif line:match('}}}') then
-      debug_log("Found marker }}} at line", i)
+      -- }}}
+    elseif line:match(close_marker) then
+      -- {{{
+      debug_log("Found close marker at line", i)
       if stack[depth] then
         stack[depth].end_line = i
         debug_log("Setting end_line for depth", { depth = depth, line = i })
       end
       depth = depth - 1
+      -- }}}
     end
   end
 
   debug_log("Tree structure:", ";" .. tree_to_string(root))
   return root
 end
+-- }}}
+
 
 return function(options)
+  -- {{{
+  if vim.wo.foldmethod ~= 'marker' then
+    -- {{{
+    -- Format the buffer
+    debug_log("Performing buffer format")
+    vim.lsp.buf.format(options)
+    return
+    -- }}}
+  end
+
+  if vim.wo.foldmarker ~= '{{{,}}}' then
+    -- {{{
+    -- Format the buffer
+    debug_log("Performing buffer format")
+    vim.lsp.buf.format(options)
+    return
+    -- }}}
+  end
+
   debug_log("Starting format_preserve_folds")
+
+  -- Save the view
+  local saved_view = vim.fn.winsaveview()
 
   -- Build first tree with fold states
   debug_log("Building tree1 (fold states)")
   local tree1 = build_tree(function(line_num)
+    -- {{{
     local closed_line_num = vim.fn.foldclosed(line_num + 1)
     local is_closed = false
     if closed_line_num > -1 then
@@ -103,6 +143,7 @@ return function(options)
       vim.cmd(string.format('%dfoldopen', line_num))
     end
     return is_closed
+    -- }}}
   end)
 
   debug_log("Tree1 structure:", ";" .. tree_to_string(tree1))
@@ -129,16 +170,20 @@ return function(options)
 
   -- Function to restore fold states by traversing both trees simultaneously
   local function restore_folds(node1, node2)
+    -- {{{
     if #node1.children ~= #node2.children then
       -- Trees are not isomorphic, something went wrong
+      -- {{{
       debug_log("Tree mismatch!", {
         node1_children = #node1.children,
         node2_children = #node2.children
       })
       return false
+      -- }}}
     end
 
     for i = 1, #node1.children do
+      -- {{{
       local child1 = node1.children[i]
       local child2 = node2.children[i]
 
@@ -160,9 +205,11 @@ return function(options)
         -- debug_log("Opening fold at line", child2.data)
         -- vim.cmd(string.format('%dfoldopen', child2.data))
       end
+      -- }}}
     end
 
     return true
+    -- }}}
   end
 
   -- Start restoration from the root
@@ -174,6 +221,9 @@ return function(options)
     vim.notify("Failed to restore folds: trees are not isomorphic", vim.log.levels.ERROR)
   end
 
+  -- restore the view
+  vim.fn.winrestview(saved_view)
+
   if disable_debugging then
     return
   end
@@ -181,4 +231,5 @@ return function(options)
   -- Open debug buffer in a split
   vim.cmd('vsplit')
   vim.cmd('buffer debug-folds')
+  -- }}}
 end
