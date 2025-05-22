@@ -36,17 +36,20 @@ vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
 -- Set up key mapping for normal mode (formats the whole buffer)
 vim.keymap.set("n", "<leader>f", function()
   local pass_formatting_options = false
+
   if (pass_formatting_options) then
-    vim.lsp.buf.format({
-        formatting_options = {
-            tabSize = 8,
-            insertSpaces = false,
-            trimTrailingWhitespace = true
-        },
-        async = false
+    require('kaushtuk.format-preserve-fold')({
+      formatting_options = {
+        tabSize = 8,
+        insertSpaces = false,
+        trimTrailingWhitespace = true
+      },
+      async = false
     })
   else
-    vim.lsp.buf.format({ async = false })
+    require('kaushtuk.format-preserve-fold')({
+      async = false
+    })
   end
 end, { noremap = true, silent = true })
 
@@ -65,12 +68,12 @@ if (do_lsp_format_async) then
         local end_line = vim.fn.line("'>")
 
         -- Format only the selected range
-        vim.lsp.buf.format({
-            async = true,
-            range = {
-                start = { line = start_line - 1, character = 0 },
-                ["end"] = { line = end_line, character = 0 }
-            },
+        require('kaushtuk.format-preserve-fold')({
+          async = true,
+          range = {
+            start = { line = start_line - 1, character = 0 },
+            ["end"] = { line = end_line, character = 0 }
+          },
 
         })
 
@@ -85,12 +88,12 @@ else
         local end_line = vim.fn.line("'>")
 
         -- Format only the selected range
-        vim.lsp.buf.format({
-            async = false,
-            range = {
-                start = { line = start_line - 1, character = 0 },
-                ["end"] = { line = end_line, character = 0 }
-            },
+        require('kaushtuk.format-preserve-fold')({
+          async = false,
+          range = {
+            start = { line = start_line - 1, character = 0 },
+            ["end"] = { line = end_line, character = 0 }
+          },
 
         })
 
