@@ -132,3 +132,4 @@ cmp.setup({
 vim.diagnostic.config({
     virtual_text = true,
 })
+vim.lsp.set_log_level("trace")
