@@ -133,3 +133,12 @@ vim.diagnostic.config({
     virtual_text = true,
 })
 vim.lsp.set_log_level("trace")
+
+------------------------------------------------------------------------------------
+------------- Toggle diagnostics for the current buffer with <leader>td ------------
+------------------------------------------------------------------------------------
+vim.keymap.set("n", "<leader>td", function()
+  local is_enabled = vim.diagnostic.is_enabled({ bufnr = 0 })
+  vim.diagnostic.enable(not is_enabled, { bufnr = 0 })
+end, { desc = "Toggle buffer diagnostics" })
+

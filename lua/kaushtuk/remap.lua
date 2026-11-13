@@ -118,8 +118,13 @@ vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 vim.keymap.set("x", "<leader>r", "y:%s/<C-r>0//gc<Left><Left><left>")
 
 vim.keymap.set("n", "<leader>m", function()
-  vim.opt.foldmethod = 'marker'
-  vim.opt.foldmarker = '{,}'
+    if (vim.wo.foldmethod == 'marker') then
+        vim.wo.foldmethod = 'manual'
+        vim.cmd("normal! zE")
+    else
+        vim.wo.foldmethod = 'marker'
+        vim.wo.foldmarker = '{,}'
+    end
 end, { noremap = true, silent = true })
 
 --------------------------------------
